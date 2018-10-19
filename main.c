@@ -4,36 +4,42 @@
 int mostrarMenu();
 void openFile(FILE *);
 
-typedef struct Contact{
-    char name[101];
-    char cell[11];
-    char address[101];
+//tipo de dado
+typedef struct contato{
+    char nome[101];
+    char celular[11];
+    char endereco[101];
     unsigned int cep;
-    char birth[11];
-} contact;
+    char data[11];
+} Contato;
 
-typedef struct node{
-    contact data;
-    struct node *next;
-} Node;
+//elementos da lista
+typedef struct  elemento{
+	Contato dados;	
+	struct elemento *antes;
+	struct elemento *depois;
+} Elemento;
 
-typedef struct list{
-    int size;
-    Node *head;
-} List;
+typedef struct elemento *Lista;
+//estrutura de controle
+/*typedef struct node{
+	Elemento *inicio; //ponteiro p o primero elemento da lista
+	Elemento *fim;	//ponteiro p o ultimo elemento da lista
+	int tamanho;
+}Node; */
 
-List* createList();
-
+Lista *criaLista();
+void liberaLista(Lista *);
 int main(int argc, char *argv[]) {
 
     FILE *file; 
     file = fopen("contatos.txt", "r");
     openFile(file);
     
-    List *lista=  createList();
-    printf("%d\n", lista -> size);
-
-    
+    Lista *li;
+    li = criaLista();
+    liberaLista(li);
+	        
     int opcao = 0;
     while(opcao != 5){
         opcao = mostrarMenu();
@@ -77,13 +83,23 @@ void openFile(FILE *file){
     printf("\n");
 }
 
-List* createList() {
-    List *list = (List*) malloc(sizeof(List));
-
-    list -> size = 0;
-    list -> head = NULL;
-
-    return list;
+Lista *criaLista(){
+	Lista *li = (Lista*) malloc(sizeof(Lista));
+	if(li != NULL){
+		*li = NULL;
+	}
+	return li;
+}
+void liberaLista(Lista *li){
+	if(li != NULL){
+		Elemento *no;
+		while((*li) != NULL) {
+			no = *li;
+			*li = (*li) -> depois;
+			free(no);
+		}
+		free(li);
+	}
 }
 
 int mostrarMenu(){
