@@ -34,6 +34,7 @@ Contato *criaRegistro();
 char *validaData(char data[]);
 char *validaCelular(char celular[]);
 void insereRegistro(Header *header, Contato *contato);
+void insertionSort(Header *header, Contato *contato);
 
 int main(int argc, char *argv[]) {
 
@@ -134,18 +135,19 @@ void insereRegistro(Header *header, Contato *contato) {
     novoElemento->contato = contato;
     novoElemento->qntdElemetos++;
 
-    if(header == NULL) {
+    if(header->head == NULL) {
         header->head = novoElemento;
         header->tail = novoElemento;
         novoElemento->prox = NULL;
         novoElemento->anterior = NULL;
     }
     else {
-        novoElemento->prox = NULL;
+        insertionSort(header,contato);
+/*      novoElemento->prox = NULL;
         novoElemento->anterior = header->tail;
         header->tail->prox = novoElemento;
         header->tail = novoElemento;
-        novoElemento->qntdElemetos++;
+        novoElemento->qntdElemetos++; */
     }
 }
 
@@ -209,11 +211,12 @@ char *validaCelular(char celular[]) {
 
     return celular;
 }
-Lista *insertionSort(Lista *li, int tamanhoLista) {
-    int i,j,aux;
-    
-    for(j = 1; j < tamanhoLista; j++) {
-       // aux = li;
+void insertionSort(Header *header, Contato *contato) { 
+    for(Lista *aux = header->head; aux != NULL; aux = aux->prox) {
+        Contato *nomeNaLista = (Contato *)aux->contato;
+        
+        if(strcmp(nomeNaLista->nome,contato->nome) > 0) {
+        } 
     }
-return li;    
-}
+
+};
