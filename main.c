@@ -32,11 +32,11 @@ Contato *criaRegistro();
 char *validaData(char data[]);
 char *validaCelular(char celular[]);
 void insereRegistro(Header *header, Contato *contato);
-void insertionSort(Header *header, Contato *contato);
 void procuraContato(Header *header, char *nome);
 Contato *insereArquivo(FILE *arquivo,Header *header);
 void listaContatos(Header *header);
 void removeContato(Header *header, char *nome); 
+void insertionSort(Header *header);
 
 int main(int argc, char *argv[]) {
     FILE *file;
@@ -71,6 +71,7 @@ int main(int argc, char *argv[]) {
                 break;
 
             case 4: // chamar função de listar todos os registros
+                
                 listaContatos(header);
                 break;
 
@@ -141,7 +142,6 @@ void insereRegistro(Header *header, Contato *contato) {
         novoElemento->anterior = NULL;
     }
     else {
-       // insertionSort(header,contato);
         novoElemento->prox = NULL;
         novoElemento->anterior = header->tail;
         header->tail->prox = novoElemento;
@@ -313,3 +313,30 @@ void listaContatos(Header *header){
         i++;
     }
 }
+
+void insertionSort(Header *header) { 
+    Lista *i, *j;
+    Contato *escolhido, *ordenado;
+    for(i = header->head->prox; i != NULL; i = i->prox) {
+        escolhido = (Contato *)i->contato;
+        j = i->anterior;
+        ordenado = (Contato *)j->contato;
+        Contato *altera = (Contato *)j->prox;
+        
+        while( (j != NULL) && (strcmp(ordenado->nome,escolhido->nome) > 0)) {
+            strcpy(altera->nome,ordenado->nome);
+            strcpy(altera->celular,ordenado->celular);
+            strcpy(altera->endereco,ordenado->endereco);
+            strcpy(altera->cep,ordenado->cep);
+            strcpy(altera->data,ordenado->data);
+            j = j->anterior;
+        }
+
+        strcpy(altera->nome,escolhido->nome);
+        strcpy(altera->celular,escolhido->celular);
+        strcpy(altera->endereco,escolhido->endereco);
+        strcpy(altera->cep,escolhido->cep);
+        strcpy(altera->data,escolhido->data);
+    }
+}
+
