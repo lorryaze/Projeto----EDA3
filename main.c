@@ -34,7 +34,7 @@ Contato *criaRegistro();
 char *validaData(char data[]);
 char *validaCelular(char celular[]);
 void insereRegistro(Header *header, Contato *contato);
-void insertionSort(Header *header, Contato *contato);
+void insertionSort(Header *header);
 
 int main(int argc, char *argv[]) {
 
@@ -142,12 +142,11 @@ void insereRegistro(Header *header, Contato *contato) {
         novoElemento->anterior = NULL;
     }
     else {
-        insertionSort(header,contato);
-/*      novoElemento->prox = NULL;
+        novoElemento->prox = NULL;
         novoElemento->anterior = header->tail;
         header->tail->prox = novoElemento;
         header->tail = novoElemento;
-        novoElemento->qntdElemetos++; */
+        novoElemento->qntdElemetos++;
     }
 }
 
@@ -211,12 +210,28 @@ char *validaCelular(char celular[]) {
 
     return celular;
 }
-void insertionSort(Header *header, Contato *contato) { 
-    for(Lista *aux = header->head; aux != NULL; aux = aux->prox) {
-        Contato *nomeNaLista = (Contato *)aux->contato;
+void insertionSort(Header *header) { 
+    Lista *i, *j;
+    Contato *escolhido, *ordenado;
+    for(i = header->head->prox; i != NULL; i = i->prox) {
+        escolhido = (Contato *)i->contato;
+        j = i->anterior;
+        ordenado = (Contato *)j->contato;
+        Contato *altera = (Contato *)j->prox;
         
-        if(strcmp(nomeNaLista->nome,contato->nome) > 0) {
-        } 
-    }
+        while( (j != NULL) && (strcmp(ordenado->nome,escolhido->nome) > 0)) {
+            strcy(altera->nome,ordenado->nome);
+            strcy(altera->celular,ordenado->celular);
+            strcy(altera->endereco,ordenado->endereco);
+            strcy(altera->cep,ordenado->cep);
+            strcy(altera->data,ordenado->data);
+            j = j->anterior;
+        }
 
-};
+        strcy(altera->nome,escolhido->nome);
+        strcy(altera->celular,escolhido->celular);
+        strcy(altera->endereco,escolhido->endereco);
+        strcy(altera->cep,escolhido->cep);
+        strcy(altera->data,escolhido->data);
+    }
+}
