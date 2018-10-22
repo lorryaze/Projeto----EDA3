@@ -16,7 +16,6 @@ typedef struct contato{
 
 // lista duplamente encadeada
 typedef struct lista{
-    int qntdElemetos;
 	void *contato;	
 	struct lista *anterior;
 	struct lista *prox;
@@ -26,6 +25,7 @@ typedef struct lista{
 typedef struct header{
 	Lista *head; //ponteiro p o primero elemento da lista
 	Lista *tail; //ponteiro p o ultimo elemento da lista
+    int qntdElemetos;
 } Header;
 
 Header *inicializaHeader();
@@ -35,6 +35,8 @@ char *validaData(char data[]);
 char *validaCelular(char celular[]);
 void insereRegistro(Header *header, Contato *contato);
 void insertionSort(Header *header);
+void visualizarRegistro(Header *header);
+void registraNoArquivo(Header *header);
 
 int main(int argc, char *argv[]) {
 
@@ -50,20 +52,25 @@ int main(int argc, char *argv[]) {
     while(opcao != 5){
         opcao = mostrarMenu();
         switch(opcao){
-            case 1:
+            case 1: 
                 insereRegistro(header, criaRegistro());
+                printf("Registro criado com sucesso ! (Qntd de contato = %d\n)", header->qntdElemetos);
                 break;
             
             case 2: //chamar função de remover registro
                 break;
 
-            case 3: //chamar função de pesquisar registro
+            case 3:
+                insertionSort(header);
                 break;
 
-            case 4: // chamar função de listar todos os registros
+            case 4:
+                insertionSort(header);
+                visualizarRegistro(header);
                 break;
 
-            case 5: //sai do programa
+            case 5:
+                registraNoArquivo(header);
                 break;
             
             default:
@@ -94,6 +101,7 @@ Header *inicializaHeader() {
 	Header *header = (Header*) malloc(sizeof(Header));
     header->head = NULL;
     header->tail = NULL;
+    header->qntdElemetos = 0;
 	return header;
 }
 
@@ -133,7 +141,7 @@ void insereRegistro(Header *header, Contato *contato) {
     }
         
     novoElemento->contato = contato;
-    novoElemento->qntdElemetos++;
+    header->qntdElemetos++;
 
     if(header->head == NULL) {
         header->head = novoElemento;
@@ -146,7 +154,7 @@ void insereRegistro(Header *header, Contato *contato) {
         novoElemento->anterior = header->tail;
         header->tail->prox = novoElemento;
         header->tail = novoElemento;
-        novoElemento->qntdElemetos++;
+        header->qntdElemetos++;
     }
 }
 
@@ -211,27 +219,68 @@ char *validaCelular(char celular[]) {
     return celular;
 }
 void insertionSort(Header *header) { 
-    Lista *i, *j;
-    Contato *escolhido, *ordenado;
+/*     Lista *i, *j, *altera;
+    
     for(i = header->head->prox; i != NULL; i = i->prox) {
-        escolhido = (Contato *)i->contato;
+        Contato *escolhido = (Contato *)i->contato;
+        Contato *ordenado = (Contato *)j->contato;
+
+        altera = j->prox;
+        Contato *alteraContato = (Contato *)j->contato;
         j = i->anterior;
-        ordenado = (Contato *)j->contato;
-        Contato *altera = (Contato *)j->prox;
         
-        while( (j != NULL) && (strcmp(ordenado->nome,escolhido->nome) > 0)) {
-            strcy(altera->nome,ordenado->nome);
-            strcy(altera->celular,ordenado->celular);
-            strcy(altera->endereco,ordenado->endereco);
-            strcy(altera->cep,ordenado->cep);
-            strcy(altera->data,ordenado->data);
+        while( (j != NULL) && (strcmp(ordenado->nome,escolhido->nome) >= 0)) {
+            strcpy(alteraContato->nome,ordenado->nome);
+            strcpy(alteraContato->celular,ordenado->celular);
+            strcpy(alteraContato->endereco,ordenado->endereco);
+            alteraContato->cep = ordenado->cep;
+            strcpy(alteraContato->data,ordenado->data);
             j = j->anterior;
         }
 
-        strcy(altera->nome,escolhido->nome);
-        strcy(altera->celular,escolhido->celular);
-        strcy(altera->endereco,escolhido->endereco);
-        strcy(altera->cep,escolhido->cep);
-        strcy(altera->data,escolhido->data);
+        strcpy(alteraContato->nome,escolhido->nome);
+        strcpy(alteraContato->celular,escolhido->celular);
+        strcpy(alteraContato->endereco,escolhido->endereco);
+        alteraContato->cep = escolhido->cep;
+        strcpy(alteraContato->data,escolhido->data);
+    } */
+}
+void visualizarRegistro(Header *header) {
+    Lista *aux;
+    
+    printf("---------------------------------- \n");
+    printf("          Lista de Contatos        \n");    
+    printf("----------------------------------\n");
+    
+    for(aux = header->head; aux != NULL; aux = aux->prox) {
+        Contato *contato = (Contato *)aux->contato;
+        printf("Nome: %s\n", contato->nome);
+        printf("Celular: %s\n", contato->celular);
+        printf("Endereco: %s\n", contato->endereco);
+        printf("CEP: %d\n", contato->cep);
+        printf("Data: %s\n\n", contato->data);
+
     }
+}
+
+void registraNoArquivo(Header *header) {
+    Lista *aux;
+    FILE *agenda = fopen("contatos.txt", "a");
+
+    if(agenda == NULL) {
+        printf("Erro. Alteracoes não foram salvas!");
+        exit(1);
+    }
+    
+    for(aux = header->head; aux != NULL; aux = aux->prox) {
+        Contato *contato = (Contato *)aux->contato;
+        fprintf(agenda, "%s\n", contato->nome);
+        fprintf(agenda, "%s\n", contato->celular);
+        fprintf(agenda, "%s\n", contato->endereco);
+        fprintf(agenda, "%d\n", contato->cep);
+        fprintf(agenda, "%s\n", contato->data);
+        fprintf(agenda, "$\n");
+
+    }
+    fprintf(agenda, "\n");
 }
