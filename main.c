@@ -2,9 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-int mostrarMenu();
-void openFile(FILE *);
-
 //contato
 typedef struct contato{
     char nome[101];
@@ -16,7 +13,6 @@ typedef struct contato{
 
 // lista duplamente encadeada
 typedef struct lista{
-    int qntdElemetos;
 	void *contato;	
 	struct lista *anterior;
 	struct lista *prox;
@@ -24,10 +20,12 @@ typedef struct lista{
 
 // cabeçalho
 typedef struct header{
+    int qntdElemetos;
 	Lista *head; //ponteiro p o primero elemento da lista
 	Lista *tail; //ponteiro p o ultimo elemento da lista
 } Header;
 
+int mostrarMenu();
 Header *inicializaHeader();
 void liberaLista(Lista *);
 Contato *criaRegistro();
@@ -35,14 +33,16 @@ char *validaData(char data[]);
 char *validaCelular(char celular[]);
 void insereRegistro(Header *header, Contato *contato);
 void insertionSort(Header *header, Contato *contato);
+void procuraContato(Header *header, char *nome);
+Contato *insereArquivo(FILE *arquivo,Header *header);
+void listaContatos(Header *header);
+void removeContato(Header *header, char *nome); 
 
 int main(int argc, char *argv[]) {
-
-    FILE *file; 
+    FILE *file;
     file = fopen("contatos.txt", "r");
-    openFile(file);
-    
     Header *header = inicializaHeader();
+    insereArquivo(file,header);
 
     //liberaLista(li);
 	        
@@ -55,12 +55,23 @@ int main(int argc, char *argv[]) {
                 break;
             
             case 2: //chamar função de remover registro
+                getchar();
+                printf("\nDigite o nome que deseja retirar:");
+                char nomeRem[101];
+                gets(nomeRem);
+                removeContato(header,nomeRem);
                 break;
 
             case 3: //chamar função de pesquisar registro
+                getchar();
+                printf("\nDigite o nome que deseja pesquisar:");
+                char nome[101];
+                gets(nome);
+                procuraContato(header, nome);
                 break;
 
             case 4: // chamar função de listar todos os registros
+                listaContatos(header);
                 break;
 
             case 5: //sai do programa
@@ -76,22 +87,10 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-void openFile(FILE *file){
-    
-    if(file == NULL){
-        printf("Arquivo não encontrado!");
-    }
-    else{
-        char arr[100];
-        while(fgets(arr, 100, file)!= NULL){
-          //  printf("%s", arr);
-        }
-    }
-    printf("\n");
-}
 
 Header *inicializaHeader() {
 	Header *header = (Header*) malloc(sizeof(Header));
+    header->qntdElemetos=0;
     header->head = NULL;
     header->tail = NULL;
 	return header;
@@ -133,7 +132,7 @@ void insereRegistro(Header *header, Contato *contato) {
     }
         
     novoElemento->contato = contato;
-    novoElemento->qntdElemetos++;
+    header->qntdElemetos++;
 
     if(header->head == NULL) {
         header->head = novoElemento;
@@ -142,12 +141,11 @@ void insereRegistro(Header *header, Contato *contato) {
         novoElemento->anterior = NULL;
     }
     else {
-        insertionSort(header,contato);
-/*      novoElemento->prox = NULL;
+       // insertionSort(header,contato);
+        novoElemento->prox = NULL;
         novoElemento->anterior = header->tail;
         header->tail->prox = novoElemento;
         header->tail = novoElemento;
-        novoElemento->qntdElemetos++; */
     }
 }
 
@@ -211,12 +209,107 @@ char *validaCelular(char celular[]) {
 
     return celular;
 }
-void insertionSort(Header *header, Contato *contato) { 
-    for(Lista *aux = header->head; aux != NULL; aux = aux->prox) {
-        Contato *nomeNaLista = (Contato *)aux->contato;
-        
-        if(strcmp(nomeNaLista->nome,contato->nome) > 0) {
-        } 
-    }
 
-};
+
+void procuraContato(Header *header, char *nome){
+    int i = 1;
+    for(Lista *aux = header->head; aux != NULL; aux=aux->prox){
+        Contato *nomeNaLista = (Contato *)aux->contato;
+
+        if (strstr(nomeNaLista, nome) != NULL){
+           printf("\nitem %d: \n",i);
+            printf("nome: %s\n",nomeNaLista->nome);
+            printf("celular: %s\n",nomeNaLista->celular);
+            printf("endereco: %s\n",nomeNaLista->endereco);
+            printf("cep: %d\n",nomeNaLista->cep);
+            printf("data: %s\n",nomeNaLista->data);
+            i++;
+        }
+    }
+}
+
+void removeContato(Header *header, char *nome){
+    int i =0;
+     for(Lista *aux = header->head; aux != NULL; aux = aux->prox) {
+        Contato *nomeNaLista = (Contato *)aux->contato;
+        if (strstr(nomeNaLista, nome) != NULL){
+            printf("%d\n", header->qntdElemetos);
+            if(header->qntdElemetos == 1){
+                header->head=NULL;
+                header->tail=NULL;
+                free(aux);
+                break;
+            }
+            else if (aux->anterior==NULL){
+                i = 1;
+            }
+            else if(aux->prox == NULL){
+                aux->anterior->prox= NULL;
+                header->tail = aux->anterior;
+                free(aux);
+                aux = NULL; 
+            }
+            else{
+                aux->anterior->prox = aux->prox;
+                aux->prox->anterior = aux->anterior;
+                Lista *temp = aux->anterior;
+                free(aux);
+                aux= temp;
+            }
+            header->qntdElemetos--;
+        }
+    }
+    if (i ==1){
+        header->head->prox->anterior = NULL;
+        header->head = header->head->prox;
+    }   
+}
+
+Contato *insereArquivo(FILE *arquivo,Header *header){
+    
+    if(arquivo == NULL){
+        FILE *arquivo;
+        char contato[] = "contatos.txt";
+        printf("\nArquivo não encontrado");
+        arquivo = fopen(contato, "w");
+        printf("\narquivo criado");
+    }
+    else{
+        char arr[100];
+        do{
+            char nome[101], celular[11];
+            char endereco[101], data[11];
+            char cep[6];
+            if(fgets(nome, 200, arquivo) == NULL){
+                break;
+            }
+            else{
+                fgets(celular, 20, arquivo);
+                fgets(endereco, 200, arquivo);
+                fgets(cep,50,arquivo);
+                fgets(data, 200, arquivo);
+                Contato *novoContato = (Contato*) malloc(sizeof(Contato));
+                strcpy(novoContato->nome, strtok(nome,"\n"));
+                strcpy(novoContato->celular, strtok(celular,"\n"));
+                strcpy(novoContato->endereco, strtok(endereco,"\n"));
+                novoContato->cep =atoi(cep);
+                strcpy(novoContato->data, strtok(data,"\n"));
+                insereRegistro(header, novoContato);
+            }
+        }while(fgets(arr, 100, arquivo)!= NULL);
+    }
+}
+
+void listaContatos(Header *header){
+    int i = 1;
+   for(Lista *aux = header->head; aux != NULL; aux = aux->prox) {
+        Contato *nomeNaLista = (Contato *)aux->contato;
+        printf("\nitem %d: \n",i);
+        printf("nome: %s\n",nomeNaLista->nome);
+        printf("celular: %s\n",nomeNaLista->celular);
+        printf("endereco: %s\n",nomeNaLista->endereco);
+        printf("cep: %d\n",nomeNaLista->cep);
+        printf("data: %s\n",nomeNaLista->data);
+        i++;
+    }
+}
