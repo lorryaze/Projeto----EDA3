@@ -10,11 +10,11 @@ Belva Yelvington
 52501
 25/09/1971
 $
-Marcelo Augusto
-91561-1234
-Qd. 34
-724569123
-18/08/1994
+Lucas Brilhante
+12345-1234
+Q3
+12345
+11/11/1111
 $
 Mirna Halford
 97465-4294
@@ -33,11 +33,5 @@ Tarra Casebolt
 793 N. College St. La Vergne, TN
 37086
 26/09/1925
-$
-Zann
-12311-1231
-Qd
-1234121
-18/18/8888
 $
 

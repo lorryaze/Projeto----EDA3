@@ -46,6 +46,7 @@ void registraNoArquivo(Header *header);
 int stringIsEmpty(char* nome);
 int listaVazia(Header *header);
 char *nomeToupper(char *nome);
+unsigned int validaCep(unsigned int cep);
 
 int main(int argc, char *argv[]) {
     Header *header = inicializaHeader();
@@ -173,7 +174,8 @@ Contato *criaRegistro() {
     // ler cep e armazena 
     printf("\nDigite o CEP: ");
     scanf("%d", &cep);
-    novoContato->cep = cep;
+    int cepCorreto = validaCep(cep);
+    novoContato->cep = cepCorreto;
 
     getchar();
     // ler data e armazena 
@@ -183,6 +185,17 @@ Contato *criaRegistro() {
     strcpy(novoContato->data, correctData);
     
     return novoContato;
+}
+
+unsigned int validaCep(unsigned int cep){
+    int tam = (cep/10000);
+    while (tam>9){
+        printf("O CPF deve ter apenas 5 números");
+        printf("\nDigite o CEP: ");
+        scanf("%d", &cep);
+        tam = (cep/10000);
+    }
+    return cep;
 }
 
 char *validaData(char data[]) {
