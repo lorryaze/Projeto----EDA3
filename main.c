@@ -345,11 +345,12 @@ void insertionSort(Header *header) {
         strcpy(endereco, escolhido->endereco);
         strcpy(data, escolhido->data);
         cep = escolhido->cep;
-        
+
+
         Lista *j = i->anterior;
         Contato *ordenado = (Contato *)j->contato;
 
-        while( (j != NULL) && (strcmp((ordenado->nome), (nome)) >= 0)) {
+        while( (j != NULL) && (strcasecmp((ordenado->nome), (nome)) >= 0)) {
             Contato *alteraContato = (Contato *)j->prox->contato;
 
             strcpy(alteraContato->nome, ordenado->nome);
