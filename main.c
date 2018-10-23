@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #define true 1
 #define false 0
@@ -42,7 +43,9 @@ void removeContato(Header *header, char *nome);
 void insertionSort(Header *header);
 void visualizarRegistro(Header *header);
 void registraNoArquivo(Header *header);
-int stringIsEmpty(char* string);
+int stringIsEmpty(char* nome);
+int listaVazia(Header *header);
+char *nomeToupper(char *nome);
 
 int main(int argc, char *argv[]) {
     Header *header = inicializaHeader();
@@ -55,12 +58,12 @@ int main(int argc, char *argv[]) {
         switch(opcao){
             case 1: 
                 insereRegistro(header, criaRegistro());
-                printf("Registro criado com sucesso !", header->qntdElemetos);
+                printf("Registro criado com sucesso !\n");
                 break;
             
             case 2:
                 getchar();
-                printf("\nDigite o nome que deseja retirar:");
+                printf("\nDigite o nome que deseja retirar: ");
                 char nomeRem[101];
                 gets(nomeRem);
                 removeContato(header,nomeRem);
@@ -68,7 +71,7 @@ int main(int argc, char *argv[]) {
 
             case 3:
                 getchar();
-                printf("\nDigite o nome que deseja pesquisar:");
+                printf("\nDigite o nome que deseja pesquisar: ");
                 char nome[101];
                 gets(nome);
                 procuraContato(header, nome);
@@ -79,6 +82,7 @@ int main(int argc, char *argv[]) {
                 visualizarRegistro(header);
 
             case 5:
+                insertionSort(header);
                 registraNoArquivo(header);
                 break;
             
@@ -203,11 +207,17 @@ char *validaCelular(char celular[]) {
 
 void procuraContato(Header *header, char *nome){
     int i = 1;
+
+    if(listaVazia(header)) {
+        printf("Lista vazia!\n\n");
+        return;
+    }
+
     for(Lista *aux = header->head; aux != NULL; aux=aux->prox){
         Contato *nomeNaLista = (Contato *)aux->contato;
 
         if (strstr(nomeNaLista->nome, nome) != NULL){
-           printf("\nitem %d: \n",i);
+            printf("\nitem %d: \n",i);
             printf("nome: %s\n",nomeNaLista->nome);
             printf("celular: %s\n",nomeNaLista->celular);
             printf("endereco: %s\n",nomeNaLista->endereco);
@@ -216,15 +226,24 @@ void procuraContato(Header *header, char *nome){
             i++;
         }
     }
+
+    if(i == 1) {
+        printf("Contato não encontrado!\n");
+    }
 }
 
 void removeContato(Header *header, char *nome){
-    int i =0;
+    int i =0, contatoEncontrado = 0;
+
+    if(listaVazia(header)) {
+        printf("Lista vazia!\n");
+        return;
+    }
      for(Lista *aux = header->head; aux != NULL; aux = aux->prox) {
         Contato *nomeNaLista = (Contato *)aux->contato;
 
         if (strstr(nomeNaLista->nome, nome) != NULL){
-            printf("%d\n", header->qntdElemetos);
+            contatoEncontrado = 1;
             if(header->qntdElemetos == 1){
                 header->head=NULL;
                 header->tail=NULL;
@@ -238,7 +257,6 @@ void removeContato(Header *header, char *nome){
                 aux->anterior->prox= NULL;
                 header->tail = aux->anterior;
                 free(aux);
-                aux = NULL; 
             }
             else{
                 aux->anterior->prox = aux->prox;
@@ -254,6 +272,9 @@ void removeContato(Header *header, char *nome){
         header->head->prox->anterior = NULL;
         header->head = header->head->prox;
     }   
+    if(contatoEncontrado == 0) {
+        printf("Contato não encontrado\n");
+    }
 }
 
 Contato *insereArquivo(Header *header){
@@ -310,7 +331,10 @@ int stringIsEmpty(char* string) {
     return isEmpty;
 }
 
-void insertionSort(Header *header) { 
+void insertionSort(Header *header) {
+    if(listaVazia(header) == true){
+        return;
+    }
     for(Lista *i = header->head->prox; i != NULL; i = i->prox) {
         Contato *escolhido = (Contato *)i->contato;
         char nome[101], celular[11], endereco[101], data[11];
@@ -325,9 +349,7 @@ void insertionSort(Header *header) {
         Lista *j = i->anterior;
         Contato *ordenado = (Contato *)j->contato;
 
-        while( (j != NULL) && (strcmp(ordenado->nome, nome) >= 0)) {
-            printf("%s %s\n", ordenado->nome, nome);
-
+        while( (j != NULL) && (strcmp((ordenado->nome), (nome)) >= 0)) {
             Contato *alteraContato = (Contato *)j->prox->contato;
 
             strcpy(alteraContato->nome, ordenado->nome);
@@ -363,6 +385,11 @@ void visualizarRegistro(Header *header) {
     printf("          Lista de Contatos        \n");    
     printf("----------------------------------\n");
     
+    if(listaVazia(header)) {
+        printf("Lista vazia!\n\n");
+        return;
+    }
+
     for(aux = header->head; aux != NULL; aux = aux->prox) {
         Contato *contato = (Contato *)aux->contato;
         printf("Nome: %s\n", contato->nome);
@@ -395,4 +422,11 @@ void registraNoArquivo(Header *header) {
     }
     fprintf(agenda, "\n");
     fclose(agenda);
+}
+
+int listaVazia(Header *header) {
+    if(header->head == NULL) {
+        return true;
+    }
+    return false;
 }
