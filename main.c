@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
         switch(opcao){
             case 1: 
                 insereRegistro(header, criaRegistro());
-                printf("Registro criado com sucesso ! (Qntd de contato = %d\n)", header->qntdElemetos);
+                printf("Registro criado com sucesso !", header->qntdElemetos);
                 break;
             
             case 2:
